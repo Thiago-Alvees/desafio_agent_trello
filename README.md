@@ -188,7 +188,5 @@ Você precisará dele para todas as requisições à API. Se perder o token, ser
 ### Bibliotecas Python
 - **py-trello:** https://github.com/sarumont/py-trello
 ---
-
-**Última atualização:** Fevereiro 2026  
 **Versão da API Trello:** v1  
 **Python:** 3.7+
