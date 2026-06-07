@@ -1,192 +1,99 @@
 # desafio_agent_trello
-Este projeto foi desenvolvido com o objetivo de criar um agente em Python capaz de automatizar tarefas e etapas de um fluxo de trabalho no Trello. A proposta explora a integração entre ferramentas, lógica de automação e uso de IA para aumentar a produtividade, a organização e a eficiência na gestão de processos.
 
-Para o desenvolvimento, foi utilizada a linguagem Python em conjunto com a API do Trello, permitindo a criação de uma solução voltada à otimização do uso da plataforma. Com essa integração, é possível automatizar ações, manipular quadros, listas e cartões, além de estruturar fluxos mais inteligentes para acompanhamento de atividades.
+Agente em Python para interagir com o Trello de duas formas:
 
-Abaixo segue um guia que apresenta, de forma prática e objetiva, o processo de registro, autorização e utilização das APIs do Trello com Python, servindo como base para a construção de automações e agentes personalizados dentro da plataforma.
+- modo `chat`, em que o Gemini decide quando chamar tools
+- modo `cli`, em que voce executa comandos diretos sem LLM
 
-## Pré-requisitos
+## Requisitos
 
-- Conta ativa no Trello
-- Python 3.7 ou superior instalado
-- pip (gerenciador de pacotes Python)
-- Navegador web
+- Python 3.11 ou superior
+- Conta no Trello com `API Key` e `Token`
+- Chave do Gemini para usar o modo `chat`
 
----
+## Configuracao
 
-## Instalação das Dependências
-
-Primeiro, instale as bibliotecas necessárias:
+1. Instale as dependencias:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Ou crie um arquivo `requirements.txt`:
+2. Crie o arquivo `.env`:
 
-```txt
-google-adk
-py-trello
-datetime
-dotenv
+```env
+TRELLO_API_KEY=your_trello_api_key
+TRELLO_API_SECRET=your_trello_api_secret
+TRELLO_TOKEN=your_trello_token
+
+GOOGLE_API_KEY=your_google_api_key
+GOOGLE_MODEL=gemini-2.5-flash
 ```
 
-E instale com:
+## Como a configuracao funciona
+
+- O modo `chat` procura `GOOGLE_API_KEY` e, se ela nao existir, tenta `GEMINI_API_KEY`.
+- Se nenhuma chave existir, `python main.py` entra no modo `cli`.
+
+## Como executar
+
+Modo chat:
 
 ```bash
-pip install -r requirements.txt
+python main.py
+python main.py chat
+python main.py chat "quais cards eu tenho no board Tarefas?"
 ```
 
----
+Modo CLI:
 
-## Passo 1: Criar um Novo Power-Up (Aplicativo)
-
-### 1.1 Acessar o Portal de Power-Ups
-
-1. Acesse o portal de administração de Power-Ups do Trello:
-   ```
-   https://trello.com/power-ups/admin/
-   ```
-
-2. Faça login com sua conta Trello
-
-3. Clique no botão **"New"** ou **"Criar novo Power-Up"**
-
-### 1.2 Preencher Informações do Aplicativo
-
-Na tela "Novo aplicativo", preencha os seguintes campos:
-
-| Campo | Valor Exemplo | Descrição |
-|-------|---------------|-----------|
-| **Nome do aplicativo** | `AppDio` ou `Meu App Python` | Nome que identificará seu aplicativo |
-| **Área de trabalho** | Selecione seu workspace | Workspace onde o app será gerenciado |
-| **Email** | `me@company.com` | Email para contato sobre o aplicativo |
-| **Contato de suporte** | `support@company.com` | Email ou link para suporte aos usuários |
-| **Autor** | `Seu Nome` ou `Sua Empresa` | Nome do desenvolvedor/empresa |
-| **URL de conector iframe** | `https://seu-dominio.com/` | URL do iframe (opcional para API básica) |
-
-> 💡 **Dica:** Para uso apenas da API REST (sem interface visual), você pode deixar a "URL de conector iframe" em branco ou colocar uma URL placeholder.
-
-### 1.3 Criar o Power-Up
-
-1. Revise as informações preenchidas
-
-2. Clique em **"Criar"** no canto inferior direito
-
-3. Você será redirecionado para a página de gerenciamento do seu Power-Up
-
----
-
-## Passo 2: Obter a API Key
-
-Após criar o Power-Up:
-
-1. Na página de gerenciamento do seu Power-Up, procure pela seção **"API Key"** ou **"Chave de API"**
-
-2. Você verá sua **API Key** ou **chave de API**(uma string alfanumérica longa) e o ** Secret ** ou ** Segredo ** 
-
-3. **Copie e guarde essa chave** em um local seguro
-
-> ⚠️ **Importante:** A API Key é única para seu Power-Up e deve ser tratada como informação sensível.
-
-**Formato da API Key:**
-```
-abc123def456ghi789jkl012mno345pqr678
+```bash
+python main.py cli
+python main.py boards
+python main.py cli lists --board "Tarefas"
+python main.py create-card --board "Tarefas" --list "A fazer" --title "Implementar login"
 ```
 
----
+## Exemplos de prompts no chat
 
-## Passo 3: Gerar o Token de Autorização
+- `Quais boards eu tenho?`
+- `Liste os cards do board Tarefas`
+- `Crie um card chamado "Pagar conta de luz" na lista "A fazer" do board "Tarefas"`
+- `Mova o card "Pagar conta de luz" para "Em andamento" no board "Tarefas"`
+- `Adicione o comentario "feito pelo chat" no card "Pagar conta de luz" do board "Tarefas"`
 
-### 3.1 Construir a URL de Autorização
+## Comandos do modo chat
 
-Agora você precisa gerar um token de acesso para fazer requisições em nome do usuário.
+- `/help` ou `/ajuda`
+- `/reset`
+- `/sair`
 
-Use a seguinte URL, substituindo `SUA_API_KEY_AQUI` pela sua API Key:
+## Comandos do modo CLI
 
-```
-https://trello.com/1/authorize?expiration=never&name=AppDio&scope=read,write&response_type=token&key=SUA_API_KEY_AQUI
-```
+- `boards`
+- `lists --board "Nome do board"`
+- `cards --board "Nome do board" [--list "Nome da lista"]`
+- `create-card --board "Nome do board" --list "Nome da lista" --title "Titulo" [--desc "Descricao"]`
+- `move-card --board "Nome do board" --card "Nome do card" --list "Lista destino"`
+- `comment-card --board "Nome do board" --card "Nome do card" --text "Comentario"`
+- `ajuda`
+- `sair`
 
-### 3.2 Parâmetros Explicados
+## Estrutura principal
 
-| Parâmetro | Valor | Descrição |
-|-----------|-------|-----------|
-| `expiration` | `never` | Token não expira<br>Opções: `1hour`, `1day`, `30days`, `never` |
-| `name` | `AppDio` | Nome do aplicativo (use o mesmo do Passo 1) |
-| `scope` | `read,write` | Permissões solicitadas<br>Opções: `read`, `write`, `account` |
-| `response_type` | `token` | Tipo de resposta (sempre `token`) |
-| `key` | `SUA_API_KEY` | Sua API Key obtida no Passo 2 |
+- [main.py](/c:/Users/thiag/Desktop/portfólio/Projetos/desafio_agent_trello/main.py): decide se entra em chat ou CLI
+- [trello_agent/service.py](/c:/Users/thiag/Desktop/portfólio/Projetos/desafio_agent_trello/trello_agent/service.py): regras de negocio do Trello
+- [trello_agent/tools.py](/c:/Users/thiag/Desktop/portfólio/Projetos/desafio_agent_trello/trello_agent/tools.py): tools compartilhadas entre CLI e chat
+- [trello_agent/chat.py](/c:/Users/thiag/Desktop/portfólio/Projetos/desafio_agent_trello/trello_agent/chat.py): integracao com Gemini
+- [trello_agent/agent.py](/c:/Users/thiag/Desktop/portfólio/Projetos/desafio_agent_trello/trello_agent/agent.py): parser do modo CLI
 
-### 3.3 Exemplo de URL Completa
+## Testes
 
-Se sua API Key for `abc123def456ghi789`, a URL ficaria:
-
-```
-https://trello.com/1/authorize?expiration=never&name=AppDio&scope=read,write&response_type=token&key=abc123def456ghi789
-```
-
-### 3.4 Escopos de Permissão Disponíveis
-
-| Escopo | Descrição |
-|--------|-----------|
-| `read` | Permite ler informações de boards, cards, listas, etc. |
-| `write` | Permite criar, editar e deletar recursos |
-| `account` | Permite acesso a informações da conta do usuário |
-
-Para múltiplos escopos, separe com vírgula: `scope=read,write,account`
-
----
-
-## Passo 4: Autorizar o Aplicativo
-
-### 4.1 Acessar a URL de Autorização
-
-1. Cole a URL completa (com sua API Key) no navegador
-
-2. Pressione **Enter**
-
-### 4.2 Revisar Permissões
-
-Você será redirecionado para uma página de autorização do Trello que mostrará:
-
-- ✅ Nome do aplicativo (ex: "AppDio")
-- ✅ Permissões solicitadas (read, write)
-- ✅ Lista de boards e organizações acessíveis
-- ✅ Duração do token (never = sem expiração)
-
-### 4.3 Conceder Acesso
-
-1. Revise cuidadosamente as permissões
-
-2. Se estiver de acordo, clique no botão **"Permitir"** ou **"Allow"**
-
-3. Você será redirecionado para uma página de sucesso
-
----
-
-## Passo 5: Obter o Token
-
-### 5.1 Copiar o Token
-
-Após autorizar, o Trello exibirá seu **Token de Acesso** em texto simples na página.
-
-O token será uma string alfanumérica longa, similar a:
-
-```
-a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2
+```bash
+python -m unittest discover -s tests
 ```
 
-### 5.2 Guardar com Segurança
+## Observacoes
 
-**⚠️ CRÍTICO: Copie e guarde esse token imediatamente!**
-
-Você precisará dele para todas as requisições à API. Se perder o token, será necessário gerar um novo seguindo os Passos 3 e 4 novamente.
-
----
-
-### Bibliotecas Python
-- **py-trello:** https://github.com/sarumont/py-trello
----
-**Versão da API Trello:** v1  
-**Python:** 3.7+
+- O Gemini usa o SDK oficial `google-genai` com `FunctionDeclaration.from_callable` e um loop manual de function calling.
+- As credenciais do `.env` devem ficar fora do versionamento.
