@@ -19,7 +19,7 @@ Agente em Python para interagir com o Trello de duas formas:
 pip install -r requirements.txt
 ```
 
-2. Crie o arquivo `.env`:
+Ou crie um arquivo `requirements.txt`:
 
 ```env
 TRELLO_API_KEY=your_trello_api_key
