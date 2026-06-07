@@ -18,11 +18,7 @@ Abaixo segue um guia que apresenta, de forma prática e objetiva, o processo de 
 
 Primeiro, instale as bibliotecas necessárias:
 
-```bash
-pip install -r requirements.txt
-```
-
-Ou crie um arquivo `requirements.txt`:
+Crie um arquivo `requirements.txt`:
 
 ```txt
 google-adk
